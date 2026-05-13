@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>e-Beasiswa OAP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="./img/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --primary: 59 130 246;
+    }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    }
+    
+    .tail-container {
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-bg {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      background-color: #1e3a8a;
+      background-image:
+        radial-gradient(at 8% 14%, rgba(56, 189, 248, 0.45) 0px, transparent 45%),
+        radial-gradient(at 82% 0%, rgba(99, 102, 241, 0.42) 0px, transparent 50%),
+        radial-gradient(at 18% 82%, rgba(59, 130, 246, 0.38) 0px, transparent 52%),
+        radial-gradient(at 88% 78%, rgba(14, 165, 233, 0.33) 0px, transparent 55%),
+        linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+    }
+
+    .hero-bg::before,
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: -30%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-bg::before {
+      background:
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.18), transparent 42%),
+        radial-gradient(circle at 75% 70%, rgba(147, 197, 253, 0.22), transparent 48%);
+      filter: blur(50px);
+      animation: heroMeshFloat 14s ease-in-out infinite alternate;
+    }
+
+    .hero-bg::after {
+      background:
+        radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.25), transparent 44%),
+        radial-gradient(circle at 35% 80%, rgba(125, 211, 252, 0.22), transparent 46%);
+      filter: blur(70px);
+      mix-blend-mode: screen;
+      animation: heroMeshFloat 18s ease-in-out infinite alternate-reverse;
+    }
+
+    .hero-bg > .tail-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card-blue {
+      background-color: #1e3a8a;
+      background-image:
+        radial-gradient(at 12% 18%, rgba(56, 189, 248, 0.35) 0px, transparent 45%),
+        radial-gradient(at 88% 20%, rgba(99, 102, 241, 0.35) 0px, transparent 50%),
+        linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+    }
+
+    @keyframes heroMeshFloat {
+      0% {
+        transform: translate3d(-2%, -1%, 0) scale(1);
+      }
+      100% {
+        transform: translate3d(2%, 2%, 0) scale(1.05);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- NAVBAR -->
+  <nav class="bg-white border-b shadow-md sticky top-0 z-[100]">
+    <div class="tail-container px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img
+          src="./img/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"
+          alt="Logo Tut Wuri Handayani"
+          class="w-10 h-10 object-contain"
+        >
+        <div>
+          <span class="font-bold text-2xl tracking-tight">e-Beasiswa</span>
+          <span class="text-blue-600 font-semibold">OAP</span>
+        </div>
+      </div>
+      
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <a href="#" onclick="navigateToSection('hero')" class="hover:text-blue-600 transition-colors">Beranda</a>
+        <a href="#" onclick="navigateToSection('login')" class="hover:text-blue-600 transition-colors">Login</a>
+        <a href="#" onclick="navigateToSection('dashboard')" class="hover:text-blue-600 transition-colors">Dashboard</a>
+        <a href="#" onclick="navigateToSection('gis')" class="hover:text-blue-600 transition-colors">Peta Sebaran</a>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button onclick="navigateToSection('login')"
+                class="px-6 py-2.5 text-sm font-semibold text-blue-600 border border-blue-600 rounded-2xl hover:bg-blue-50 transition">
+          Masuk
+        </button>
+        <button onclick="navigateToSection('dashboard')"
+                class="px-6 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition shadow-md">
+          Demo Dashboard
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section id="hero" class="hero-bg text-white py-24">
+    <div class="tail-container px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div class="space-y-8">
+        <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-3xl text-sm">
+          <span class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+          Beasiswa untuk Orang Asli Papua
+        </div>
+        
+        <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+          e-Beasiswa OAP<br>
+          <span class="text-blue-200">Masa Depan Cerah Papua</span>
+        </h1>
+        
+        <p class="text-xl text-blue-100 max-w-md">
+          Platform digital terintegrasi pengelolaan beasiswa bagi mahasiswa Orang Asli Papua. 
+          Transparan, Akuntabel, dan Mudah Digunakan.
+        </p>
+        
+        <div class="flex flex-wrap gap-4">
+          <button onclick="navigateToSection('login')"
+                  class="px-8 py-4 bg-white text-blue-700 font-semibold rounded-3xl text-lg hover:scale-105 transition flex items-center gap-3 shadow-xl">
+            <i class="fas fa-sign-in-alt"></i>
+            Login Mahasiswa / Admin
+          </button>
+          
+          <button onclick="navigateToSection('gis')"
+                  class="px-8 py-4 border border-white/70 font-semibold rounded-3xl text-lg hover:bg-white/10 transition flex items-center gap-3">
+            <i class="fas fa-map-marked-alt"></i>
+            Lihat Peta Sebaran
+          </button>
+        </div>
+        
+        <div class="flex items-center gap-8 text-sm pt-6">
+          <div>
+            <div class="text-3xl font-bold">1.248</div>
+            <div class="text-blue-200">Penerima Aktif</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">87</div>
+            <div class="text-blue-200">Perguruan Tinggi</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">12</div>
+            <div class="text-blue-200">Negara</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ilustrasi -->
+      <div class="flex justify-center">
+        <div class="relative">
+          <img src="./img/uncen.jpeg" 
+               alt="Ilustrasi Mahasiswa Papua" 
+               class="rounded-3xl shadow-2xl w-full max-w-xl object-cover border-8 border-white/30">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BERITA & PENGUMUMAN -->
+  <section id="berita-pengumuman" class="py-20 bg-gray-50">
+    <div class="tail-container px-6">
+      <h2 class="text-3xl font-bold text-center mb-4">Berita & Pengumuman</h2>
+      <p class="text-center text-gray-600 mb-12">Update informasi terbaru seputar layanan e-Beasiswa OAP</p>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <button type="button" class="text-left bg-white rounded-3xl shadow-md overflow-hidden border hover:shadow-xl transition cursor-pointer group">
+          <img src="./img/uncen.jpeg" alt="Berita Beasiswa OAP" class="w-full h-75 object-cover">
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2 group-hover:text-blue-600 transition-colors">Penyaluran Tahap 2 Tahun 2026 Resmi Dimulai</h3>
+            <p class="text-sm text-gray-600">Dinas Pendidikan Papua mulai menyalurkan beasiswa tahap 2 bagi mahasiswa penerima aktif di dalam dan luar negeri.</p>
+          </div>
+        </button>
+
+        <div class="bg-white rounded-3xl shadow-md border p-6">
+          <h3 class="text-xl font-semibold mb-4">Pengumuman</h3>
+          <div class="space-y-3">
+            <button type="button" class="w-full text-left p-4 rounded-2xl border hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer group flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-bullhorn"></i>
+              </div>
+              <div>
+                <div class="font-medium group-hover:text-blue-600 transition-colors">Batas Unggah Dokumen Semester Genap</div>
+                <p class="text-sm text-gray-600">Unggah KHS dan surat aktif kuliah paling lambat 20 Mei 2026.</p>
+              </div>
+            </button>
+
+            <button type="button" class="w-full text-left p-4 rounded-2xl border hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer group flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div>
+                <div class="font-medium group-hover:text-blue-600 transition-colors">Jadwal Verifikasi Kampus Mitra</div>
+                <p class="text-sm text-gray-600">Verifikasi data kampus akan dilakukan pada 22–24 Mei 2026.</p>
+              </div>
+            </button>
+
+            <button type="button" class="w-full text-left p-4 rounded-2xl border hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer group flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-file-lines"></i>
+              </div>
+              <div>
+                <div class="font-medium group-hover:text-blue-600 transition-colors">Perubahan Format Surat Pernyataan</div>
+                <p class="text-sm text-gray-600">Gunakan template baru surat pernyataan mulai periode Juli 2026.</p>
+              </div>
+            </button>
+
+            <button type="button" class="w-full text-left p-4 rounded-2xl border hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer group flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-clipboard-check"></i>
+              </div>
+              <div>
+                <div class="font-medium group-hover:text-blue-600 transition-colors">Validasi Rekening Mahasiswa</div>
+                <p class="text-sm text-gray-600">Pastikan nomor rekening aktif sebelum proses pencairan berikutnya.</p>
+              </div>
+            </button>
+
+            <button type="button" class="w-full text-left p-4 rounded-2xl border hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer group flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                <i class="fas fa-circle-exclamation"></i>
+              </div>
+              <div>
+                <div class="font-medium group-hover:text-blue-600 transition-colors">Pemeliharaan Sistem Terjadwal</div>
+                <p class="text-sm text-gray-600">Sistem akan maintenance pada Sabtu, 25 Mei 2026 pukul 22.00 WIT.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGIN DEMO -->
+  <section id="login" class="py-20 bg-gray-50">
+    <div class="tail-container px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">Simulasi Halaman Login</h2>
+      
+      <div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border">
+        <div class="login-card-blue p-8 text-white text-center">
+          <div class="mx-auto w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4">
+            <i class="fas fa-graduation-cap text-4xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold">Selamat Datang</h3>
+          <p class="text-blue-100">e-Beasiswa OAP</p>
+        </div>
+        
+        <div class="p-8 space-y-6">
+          <div>
+            <label class="block text-sm font-medium mb-2">Email / NIM</label>
+            <input id="email" type="text" value="jane.doe@studentpapua.ac.id" 
+                   class="w-full px-5 py-4 border rounded-2xl focus:outline-none focus:border-blue-500">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Password</label>
+            <input id="password" type="password" value="demo123" 
+                   class="w-full px-5 py-4 border rounded-2xl focus:outline-none focus:border-blue-500">
+          </div>
+          
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" checked class="w-4 h-4 accent-blue-600">
+              <span>Ingat saya</span>
+            </label>
+            <a href="#" class="text-blue-700 hover:underline">Lupa password?</a>
+          </div>
+          
+          <button onclick="loginDemo()" 
+                  class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-semibold rounded-2xl transition text-lg">
+            Masuk ke Sistem
+          </button>
+          
+          <div class="text-center text-sm text-gray-500">
+            Belum punya akun? <span class="text-blue-700 cursor-pointer hover:underline">Daftar Mahasiswa Baru</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD DEMO -->
+  <section id="dashboard" class="hero-bg py-20">
+    <div class="tail-container px-6">
+      <h2 class="text-3xl font-bold text-center mb-4 text-white">Demo Dashboard</h2>
+      <p class="text-center text-blue-100 mb-12">Pilih role di bawah untuk melihat tampilan dashboard yang berbeda</p>
+      
+      <div class="flex justify-center gap-4 mb-10 flex-wrap">
+        <button onclick="switchTab(0)" class="tab-btn active px-6 py-3 rounded-3xl font-medium bg-white shadow">Dashboard Dinas</button>
+        <button onclick="switchTab(1)" class="tab-btn px-6 py-3 rounded-3xl font-medium bg-white shadow">Dashboard Mahasiswa</button>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-3">
+          <div class="bg-white rounded-3xl shadow-md p-6 h-full">
+            <div class="flex items-center gap-3 mb-8">
+              <img src="./img/mahasiswa-pria.jpeg" class="w-12 h-12 rounded-2xl object-cover" alt="">
+              <div>
+                <div class="font-semibold">Admin Dinas</div>
+                <div class="text-xs text-green-600">Online</div>
+              </div>
+            </div>
+            
+            <nav class="space-y-1">
+              <button type="button" onclick="setDashboardMenu('dashboard')" data-menu="dashboard" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl bg-blue-50 text-blue-700 font-medium">
+                <i class="fas fa-tachometer-alt w-5"></i>
+                <span>Dashboard</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('mahasiswa')" data-menu="mahasiswa" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-users w-5"></i>
+                <span>Data Mahasiswa</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('kampus')" data-menu="kampus" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-university w-5"></i>
+                <span>Data Kampus</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('pembayaran')" data-menu="pembayaran" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-file-invoice-dollar w-5"></i>
+                <span>Riwayat Pembayaran</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('laporan')" data-menu="laporan" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-graduation-cap w-5"></i>
+                <span>Laporan Aktif Kuliah</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('pengaduan')" data-menu="pengaduan" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-envelope w-5"></i>
+                <span>Pesan & Pengaduan</span>
+              </button>
+              <button type="button" onclick="setDashboardMenu('profil')" data-menu="profil" class="dashboard-menu-btn w-full text-left flex items-center gap-3 px-5 py-4 hover:bg-gray-100 rounded-2xl text-gray-700">
+                <i class="fas fa-user w-5"></i>
+                <span>Profil & Dokumen</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-9">
+          <div class="bg-white rounded-3xl shadow-md p-8">
+            <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+              <div>
+                <h3 class="text-2xl font-bold" id="dashboard-title">Dashboard Dinas Pendidikan</h3>
+                <p class="text-gray-500" id="dashboard-subtitle">Ringkasan layanan e-Beasiswa OAP hari ini</p>
+              </div>
+              <div class="flex items-center gap-6 text-sm">
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>2026</span>
+                </div>
+                <button id="dashboard-action-btn" onclick="handleDashboardAction()" class="px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-sm font-medium flex items-center gap-2">
+                  <i class="fas fa-download"></i>
+                  <span id="dashboard-action-label">Export Laporan</span>
+                </button>
+              </div>
+            </div>
+            
+            <div id="dashboard-panels" class="space-y-8">
+              <div class="dashboard-panel" data-panel="dashboard">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                  <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-3xl p-6">
+                    <div class="text-4xl font-bold">1.248</div>
+                    <div class="text-blue-100">Penerima Aktif</div>
+                  </div>
+                  <div class="bg-white border rounded-3xl p-6">
+                    <div class="text-4xl font-bold text-green-600">Rp 2,4M</div>
+                    <div class="text-gray-600">Disalurkan Bulan Ini</div>
+                  </div>
+                  <div class="bg-white border rounded-3xl p-6">
+                    <div class="text-4xl font-bold text-amber-600">89</div>
+                    <div class="text-gray-600">Mahasiswa Baru</div>
+                  </div>
+                  <div class="bg-white border rounded-3xl p-6">
+                    <div class="text-4xl font-bold text-red-600">12</div>
+                    <div class="text-gray-600">Pengaduan Baru</div>
+                  </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div class="bg-gray-50 border rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4">Aktivitas Terbaru</h4>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                      <li>✅ 34 verifikasi dokumen selesai hari ini</li>
+                      <li>💸 Pencairan tahap 2 untuk 187 mahasiswa berhasil</li>
+                      <li>📨 5 pengaduan baru masuk dari portal mahasiswa</li>
+                    </ul>
+                  </div>
+                  <div class="bg-gray-50 border rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4">Jadwal Mendatang</h4>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                      <li>15 Mei • Finalisasi penerima baru</li>
+                      <li>20 Mei • Rekonsiliasi data kampus mitra</li>
+                      <li>25 Mei • Publikasi laporan semester</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="mahasiswa">
+                <div class="grid md:grid-cols-3 gap-6">
+                  <div class="bg-blue-50 rounded-3xl p-6">
+                    <div class="text-sm text-blue-700">Total Mahasiswa</div>
+                    <div class="text-3xl font-bold text-blue-700 mt-1">1.248</div>
+                  </div>
+                  <div class="bg-green-50 rounded-3xl p-6">
+                    <div class="text-sm text-green-700">Status Aktif</div>
+                    <div class="text-3xl font-bold text-green-700 mt-1">1.116</div>
+                  </div>
+                  <div class="bg-amber-50 rounded-3xl p-6">
+                    <div class="text-sm text-amber-700">Perlu Verifikasi</div>
+                    <div class="text-3xl font-bold text-amber-700 mt-1">132</div>
+                  </div>
+                </div>
+                <div class="mt-6 border rounded-3xl overflow-hidden">
+                  <div class="p-4 bg-white border-b flex flex-col md:flex-row md:items-center gap-3">
+                    <div class="relative flex-1">
+                      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                      <input id="mahasiswa-search" type="text" oninput="setMahasiswaSearch(this.value)" placeholder="Cari nama mahasiswa atau kampus..." class="w-full pl-11 pr-4 py-3 border rounded-2xl text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="w-full md:w-56">
+                      <select id="mahasiswa-filter-status" onchange="setMahasiswaStatusFilter(this.value)" class="w-full px-4 py-3 border rounded-2xl text-sm focus:outline-none focus:border-blue-500">
+                        <option value="all">Semua Status</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Verifikasi Berkas">Verifikasi Berkas</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-5 bg-gray-50 px-6 py-4 text-sm font-semibold text-gray-600">
+                    <div>Nama</div><div>Kampus</div><div>Semester</div><div>Status</div><div class="text-right">Aksi</div>
+                  </div>
+                  <div id="mahasiswa-table-body"></div>
+                  <div id="mahasiswa-empty-state" class="hidden px-6 py-10 text-center text-sm text-gray-500 border-t">
+                    Data mahasiswa tidak ditemukan untuk pencarian/filter ini.
+                  </div>
+                  <div class="px-6 py-4 bg-gray-50 border-t flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div id="mahasiswa-pagination-info" class="text-sm text-gray-600">Menampilkan 0-0 dari 0 data</div>
+                    <div class="flex items-center gap-2">
+                      <button id="mahasiswa-prev-btn" type="button" onclick="changeMahasiswaPage(-1)" class="px-3 py-1.5 rounded-xl border text-sm text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Sebelumnya</button>
+                      <div id="mahasiswa-pagination-pages" class="flex items-center gap-1"></div>
+                      <button id="mahasiswa-next-btn" type="button" onclick="changeMahasiswaPage(1)" class="px-3 py-1.5 rounded-xl border text-sm text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Berikutnya</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="kampus">
+                <div class="border rounded-3xl overflow-hidden">
+                  <div class="p-4 bg-white border-b flex flex-col md:flex-row md:items-center gap-3">
+                    <div class="relative flex-1">
+                      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                      <input id="kampus-search" type="text" oninput="setKampusSearch(this.value)" placeholder="Cari nama kampus atau lokasi..." class="w-full pl-11 pr-4 py-3 border rounded-2xl text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="w-full md:w-56">
+                      <select id="kampus-filter-type" onchange="setKampusTypeFilter(this.value)" class="w-full px-4 py-3 border rounded-2xl text-sm focus:outline-none focus:border-blue-500">
+                        <option value="all">Semua Tipe</option>
+                        <option value="Nasional">Nasional</option>
+                        <option value="Internasional">Internasional</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="kampus-card-grid" class="p-6 grid md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                  <div id="kampus-empty-state" class="hidden px-6 py-10 text-center text-sm text-gray-500 border-t">
+                    Data kampus tidak ditemukan untuk pencarian/filter ini.
+                  </div>
+                  <div class="px-6 py-4 bg-gray-50 border-t flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div id="kampus-pagination-info" class="text-sm text-gray-600">Menampilkan 0-0 dari 0 data</div>
+                    <div class="flex items-center gap-2">
+                      <button id="kampus-prev-btn" type="button" onclick="changeKampusPage(-1)" class="px-3 py-1.5 rounded-xl border text-sm text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Sebelumnya</button>
+                      <div id="kampus-pagination-pages" class="flex items-center gap-1"></div>
+                      <button id="kampus-next-btn" type="button" onclick="changeKampusPage(1)" class="px-3 py-1.5 rounded-xl border text-sm text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed">Berikutnya</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="pembayaran">
+                <div class="border rounded-3xl overflow-hidden">
+                  <div class="grid grid-cols-5 bg-gray-50 px-6 py-4 text-sm font-semibold text-gray-600">
+                    <div>Tanggal</div><div>Periode</div><div>Jumlah</div><div>Penerima</div><div>Status</div>
+                  </div>
+                  <div class="grid grid-cols-5 px-6 py-4 text-sm border-t">
+                    <div>03 Mei 2026</div><div>Tahap 2</div><div>Rp 1,2 M</div><div>602</div><div class="text-green-600 font-medium">Selesai</div>
+                  </div>
+                  <div class="grid grid-cols-5 px-6 py-4 text-sm border-t">
+                    <div>17 Apr 2026</div><div>Tahap 1</div><div>Rp 1,1 M</div><div>551</div><div class="text-green-600 font-medium">Selesai</div>
+                  </div>
+                  <div class="grid grid-cols-5 px-6 py-4 text-sm border-t">
+                    <div>20 Mei 2026</div><div>Tahap 3</div><div>Rp 1,3 M</div><div>610</div><div class="text-blue-600 font-medium">Terjadwal</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="laporan">
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div class="border rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4">Kelengkapan Laporan Aktif Kuliah</h4>
+                    <div class="space-y-3 text-sm">
+                      <div>
+                        <div class="flex justify-between mb-1"><span>Semester Genap 2026</span><span>82%</span></div>
+                        <div class="h-2 bg-gray-200 rounded-full"><div class="h-2 bg-blue-600 rounded-full w-[82%]"></div></div>
+                      </div>
+                      <div>
+                        <div class="flex justify-between mb-1"><span>Semester Ganjil 2025</span><span>96%</span></div>
+                        <div class="h-2 bg-gray-200 rounded-full"><div class="h-2 bg-green-600 rounded-full w-[96%]"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="border rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4">Perlu Tindak Lanjut</h4>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                      <li>45 mahasiswa belum unggah KHS terbaru</li>
+                      <li>18 mahasiswa menunggu validasi kampus</li>
+                      <li>9 mahasiswa perlu pembaruan surat aktif</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="pengaduan">
+                <div class="grid lg:grid-cols-3 gap-6">
+                  <div class="lg:col-span-1 border rounded-3xl p-4 bg-gray-50">
+                    <h4 class="font-semibold px-2 py-2">Riwayat Pengguna</h4>
+                    <div class="space-y-2 mt-2">
+                      <div class="bg-white border border-blue-200 rounded-2xl p-3">
+                        <div class="font-medium text-sm">Jhon Doe</div>
+                        <div class="text-xs text-gray-500 mt-1">Belum menerima dana tahap 2</div>
+                        <div class="text-xs text-blue-600 mt-1">2 jam lalu</div>
+                      </div>
+                      <div class="bg-white border rounded-2xl p-3">
+                        <div class="font-medium text-sm">Jane Doe</div>
+                        <div class="text-xs text-gray-500 mt-1">Kesalahan NIM pada profil</div>
+                        <div class="text-xs text-gray-400 mt-1">1 hari lalu</div>
+                      </div>
+                      <div class="bg-white border rounded-2xl p-3">
+                        <div class="font-medium text-sm">Jhon Doe</div>
+                        <div class="text-xs text-gray-500 mt-1">Perbaikan rekening beasiswa</div>
+                        <div class="text-xs text-gray-400 mt-1">2 hari lalu</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lg:col-span-2 border rounded-3xl p-5">
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                      <div>
+                        <h4 class="font-semibold">Percakapan: Jhon Doe</h4>
+                        <p class="text-xs text-gray-500 mt-1">Topik: Belum menerima dana tahap 2</p>
+                      </div>
+                      <span class="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full">Diproses</span>
+                    </div>
+                    <div class="space-y-4">
+                      <div class="flex justify-start">
+                        <div class="max-w-[80%] bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
+                          <div class="text-xs font-semibold text-gray-600 mb-1">Jhon Doe</div>
+                          <p class="text-sm text-gray-700">Halo admin, dana beasiswa tahap 2 saya belum masuk sampai hari ini.</p>
+                          <div class="text-[11px] text-gray-400 mt-2">09:15</div>
+                        </div>
+                      </div>
+                      <div class="flex justify-end">
+                        <div class="max-w-[80%] bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-3">
+                          <div class="text-xs font-semibold text-blue-100 mb-1">Admin Dinas</div>
+                          <p class="text-sm">Terima kasih laporannya. Kami sedang cek validasi rekening dan status pencairan Anda.</p>
+                          <div class="text-[11px] text-blue-100 mt-2">09:32</div>
+                        </div>
+                      </div>
+                      <div class="flex justify-start">
+                        <div class="max-w-[80%] bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
+                          <div class="text-xs font-semibold text-gray-600 mb-1">Jhon Doe</div>
+                          <p class="text-sm text-gray-700">Baik admin, saya tunggu update selanjutnya. Terima kasih.</p>
+                          <div class="text-[11px] text-gray-400 mt-2">09:40</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dashboard-panel hidden" data-panel="profil">
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div class="border rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                      <h4 class="font-semibold">Biodata Mahasiswa</h4>
+                      <button type="button" onclick="openProfileModal()" class="px-3 py-1.5 rounded-xl bg-blue-100 text-blue-700 text-xs font-medium hover:bg-blue-200">Edit Profil</button>
+                    </div>
+                    <div class="flex items-center gap-4 pb-4 border-b mb-4">
+                      <img src="./img/mahasiswa-wanita.jpeg" alt="Foto Mahasiswa" class="w-16 h-16 rounded-2xl object-cover">
+                      <div>
+                        <div class="font-semibold" id="profile-display-name">Jane Doe</div>
+                        <div class="text-sm text-gray-500">NIM: <span id="profile-display-nim">2023100112</span></div>
+                        <div class="text-xs text-blue-600 mt-1">Penerima Beasiswa OAP Aktif</div>
+                      </div>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                      <div class="flex justify-between"><span class="text-gray-500">Program Studi</span><span class="font-medium" id="profile-display-prodi">Teknik Informatika</span></div>
+                      <div class="flex justify-between"><span class="text-gray-500">Perguruan Tinggi</span><span class="font-medium" id="profile-display-kampus">Universitas Cendrawasih</span></div>
+                      <div class="flex justify-between"><span class="text-gray-500">Semester</span><span class="font-medium" id="profile-display-semester">6</span></div>
+                      <div class="flex justify-between"><span class="text-gray-500">Email</span><span class="font-medium" id="profile-display-email">jane.doe@studentpapua.ac.id</span></div>
+                      <div class="flex justify-between"><span class="text-gray-500">No. HP</span><span class="font-medium" id="profile-display-phone">+62 812 3456 7890</span></div>
+                    </div>
+                  </div>
+                  <div class="border rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4">Kelengkapan Dokumen Mahasiswa</h4>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                      <li class="flex items-center justify-between"><span>KTP</span><span class="text-green-600 font-medium">Lengkap</span></li>
+                      <li class="flex items-center justify-between"><span>Kartu Keluarga</span><span class="text-green-600 font-medium">Lengkap</span></li>
+                      <li class="flex items-center justify-between"><span>Surat Aktif Kuliah</span><span class="text-green-600 font-medium">Lengkap</span></li>
+                      <li class="flex items-center justify-between"><span>KHS Semester Terakhir</span><span id="profile-doc-khs" class="text-amber-600 font-medium">Perlu Update</span></li>
+                      <li class="flex items-center justify-between"><span>Buku Rekening</span><span class="text-green-600 font-medium">Lengkap</span></li>
+                      <li class="flex items-center justify-between"><span>Surat Pernyataan</span><span id="profile-doc-surat" class="text-blue-600 font-medium">Dalam Verifikasi</span></li>
+                    </ul>
+                    <div class="mt-5">
+                      <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress Kelengkapan</span>
+                        <span>83%</span>
+                      </div>
+                      <div class="h-2 bg-gray-200 rounded-full">
+                        <div class="h-2 bg-blue-600 rounded-full w-[83%]"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <div id="mahasiswa-modal" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/50 p-4" onclick="if (event.target === this) closeMahasiswaModal()">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-start justify-between p-6 border-b">
+        <div>
+          <h3 class="text-xl font-bold" id="mahasiswa-modal-title">Tambah Mahasiswa</h3>
+          <p class="text-sm text-gray-500 mt-1" id="mahasiswa-modal-subtitle">Isi data mahasiswa untuk simulasi CRUD.</p>
+        </div>
+        <button type="button" onclick="closeMahasiswaModal()" class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="mahasiswa-modal-form" class="p-6 space-y-5" onsubmit="submitMahasiswaModal(event)">
+        <div class="flex items-center justify-center">
+          <img id="mahasiswa-form-photo-preview" src="./img/mahasiswa-pria.jpeg" alt="Foto Profil Mahasiswa" class="w-20 h-20 rounded-full object-cover border-2 border-blue-100 shadow-sm">
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Nama Mahasiswa</label>
+            <input id="mahasiswa-form-nama" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">URL Foto Profil</label>
+            <input id="mahasiswa-form-foto" type="text" oninput="updateMahasiswaPhotoPreview(this.value)" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Kampus</label>
+            <input id="mahasiswa-form-kampus" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Semester</label>
+            <input id="mahasiswa-form-semester" type="number" min="1" max="14" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select id="mahasiswa-form-status" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+              <option value="Aktif">Aktif</option>
+              <option value="Verifikasi Berkas">Verifikasi Berkas</option>
+              <option value="Nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="closeMahasiswaModal()" class="px-5 py-2.5 rounded-2xl border text-gray-600 hover:bg-gray-50">Batal</button>
+          <button id="mahasiswa-modal-submit" type="submit" class="px-5 py-2.5 rounded-2xl bg-blue-600 text-white hover:bg-blue-700">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div id="profile-modal" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/50 p-4" onclick="if (event.target === this) closeProfileModal()">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-start justify-between p-6 border-b">
+        <div>
+          <h3 class="text-xl font-bold">Edit Profil Mahasiswa</h3>
+          <p class="text-sm text-gray-500 mt-1">Perbarui biodata dan status dokumen untuk simulasi.</p>
+        </div>
+        <button type="button" onclick="closeProfileModal()" class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="profile-modal-form" class="p-6 space-y-5" onsubmit="submitProfileModal(event)">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Nama Mahasiswa</label>
+            <input id="profile-form-name" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">NIM</label>
+            <input id="profile-form-nim" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Program Studi</label>
+            <input id="profile-form-prodi" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Perguruan Tinggi</label>
+            <input id="profile-form-kampus" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Semester</label>
+            <input id="profile-form-semester" type="number" min="1" max="14" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">No. HP</label>
+            <input id="profile-form-phone" type="text" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Email</label>
+            <input id="profile-form-email" type="email" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Status KHS Semester Terakhir</label>
+            <select id="profile-form-khs-status" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500">
+              <option value="Lengkap">Lengkap</option>
+              <option value="Perlu Update">Perlu Update</option>
+              <option value="Dalam Verifikasi">Dalam Verifikasi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Status Surat Pernyataan</label>
+            <select id="profile-form-surat-status" class="w-full px-4 py-3 border rounded-2xl focus:outline-none focus:border-blue-500">
+              <option value="Lengkap">Lengkap</option>
+              <option value="Perlu Update">Perlu Update</option>
+              <option value="Dalam Verifikasi">Dalam Verifikasi</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="closeProfileModal()" class="px-5 py-2.5 rounded-2xl border text-gray-600 hover:bg-gray-50">Batal</button>
+          <button type="submit" class="px-5 py-2.5 rounded-2xl bg-blue-600 text-white hover:bg-blue-700">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- GIS SECTION -->
+  <section id="gis" class="py-20 bg-white">
+    <div class="tail-container px-6">
+      <h2 class="text-3xl font-bold text-center mb-4">Sebaran Mahasiswa OAP</h2>
+      <p class="text-center text-gray-600 mb-12">Peta interaktif kampus dan jumlah penerima beasiswa</p>
+      
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden border h-[600px] relative z-0" id="map-container">
+        <div id="map" class="w-full h-full relative z-0"></div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="cta-disdik" class="hero-bg py-16">
+    <div class="tail-container px-6">
+      <div class="grid md:grid-cols-2 gap-10 items-center rounded-[2rem] border border-white/25 bg-white/10 backdrop-blur-md p-8 md:p-12 text-white shadow-2xl">
+        <div class="space-y-5">
+          <p class="inline-flex items-center gap-2 text-sm bg-white/20 px-4 py-2 rounded-full">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-300"></span>
+            Informasi Resmi Dinas Pendidikan
+          </p>
+          <h3 class="text-3xl md:text-4xl font-bold leading-tight">
+            Kunjungi Website Dinas Pendidikan untuk Update Program dan Layanan Pendidikan Papua
+          </h3>
+          <p class="text-blue-100 text-lg max-w-xl">
+            Akses pengumuman resmi, agenda kegiatan, serta informasi layanan pendidikan terbaru langsung dari portal Dinas Pendidikan.
+          </p>
+          <a href="https://disdik.papua.go.id" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-white text-blue-700 font-semibold hover:scale-[1.02] transition shadow-lg">
+            <i class="fas fa-up-right-from-square"></i>
+            Kunjungi Website Dinas Pendidikan
+          </a>
+        </div>
+        <div class="flex justify-center md:justify-end">
+          <div class="w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/90 border-8 border-white/40 shadow-2xl flex items-center justify-center p-8">
+            <img
+              src="./img/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"
+              alt="Logo Tut Wuri Handayani"
+              class="w-full h-full object-contain"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-gray-900 text-gray-400 py-12">
+    <div class="tail-container px-6">
+      <div class="grid md:grid-cols-3 gap-8 mb-10">
+        <div>
+          <h4 class="text-white font-semibold mb-4">Layanan Mahasiswa</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Pendaftaran Beasiswa OAP</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Unggah Dokumen Semester</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Cek Status Verifikasi</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Jadwal Pencairan Dana</span></a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">Navigasi Portal</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" onclick="navigateToSection('hero')" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Beranda</span></a></li>
+            <li><a href="#" onclick="navigateToSection('berita-pengumuman')" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Berita & Pengumuman</span></a></li>
+            <li><a href="#" onclick="navigateToSection('dashboard')" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Dashboard Demo</span></a></li>
+            <li><a href="#" onclick="navigateToSection('gis')" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Peta Sebaran Mahasiswa</span></a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-4">Bantuan & Dukungan</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>FAQ Beasiswa</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Panduan Pengguna</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Kontak Admin Dinas</span></a></li>
+            <li><a href="#" class="inline-flex items-center gap-2 hover:text-white transition-colors"><i class="fas fa-arrow-right text-[11px]"></i><span>Pusat Pengaduan</span></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 pt-6 text-center">
+        <p>© 2026 e-Beasiswa OAP • Dinas Pendidikan dan Kebudayaan Papua</p>
+        <p class="mt-3 text-sm text-gray-500">Disclaimer: Ini merupakan demo prototype rancangan sistem sebagai usulan sistem informasi yang dibuat oleh Nokensoft.com. Konten diambil dari informasi umum di internet dan menggunakan bantuan AI dalam pembuatan teks maupun gambar.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Tailwind script
+    function initTailwind() {
+      // Already using CDN
+    }
+    
+    // Navigation
+    function navigateToSection(section) {
+      document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Login Demo
+    function loginDemo() {
+      const email = document.getElementById('email').value;
+      alert(`Login berhasil sebagai ${email}!\n\nAnda akan diarahkan ke Dashboard.`);
+      setTimeout(() => {
+        navigateToSection('dashboard');
+      }, 800);
+    }
+    
+    // Tab Switch
+    let currentDashboardTab = 0;
+    let activeDashboardMenu = 'dashboard';
+    let mahasiswaModalMode = 'create';
+    let mahasiswaSearchQuery = '';
+    let mahasiswaStatusFilter = 'all';
+    let mahasiswaCurrentPage = 1;
+    let kampusSearchQuery = '';
+    let kampusTypeFilter = 'all';
+    let kampusCurrentPage = 1;
+    const mahasiswaPerPage = 5;
+    const kampusPerPage = 3;
+    const mahasiswaData = [
+      { nama: 'Jane Doe', kampus: 'UNCEN', semester: '6', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'UNIPA', semester: '4', status: 'Verifikasi Berkas', foto: './img/mahasiswa-pria.jpeg' },
+      { nama: 'Jane Doe', kampus: 'Poltek Jayapura', semester: '2', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jane Doe', kampus: 'STIE Ottow Geissler', semester: '8', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'UNCEN', semester: '3', status: 'Verifikasi Berkas', foto: './img/mahasiswa-pria.jpeg' },
+      { nama: 'Jane Doe', kampus: 'UNIPA', semester: '5', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'Poltek Jayapura', semester: '1', status: 'Nonaktif', foto: './img/mahasiswa-pria.jpeg' },
+      { nama: 'Jane Doe', kampus: 'UNCEN', semester: '7', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'Universitas YPPGI', semester: '4', status: 'Verifikasi Berkas', foto: './img/mahasiswa-pria.jpeg' },
+      { nama: 'Jane Doe', kampus: 'UNIPA', semester: '2', status: 'Aktif', foto: './img/mahasiswa-wanita.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'STIPER Manokwari', semester: '6', status: 'Aktif', foto: './img/mahasiswa-pria.jpeg' },
+      { nama: 'Jhon Doe', kampus: 'Poltekkes Jayapura', semester: '3', status: 'Nonaktif', foto: './img/mahasiswa-pria.jpeg' }
+    ];
+    const kampusData = [
+      { nama: 'Universitas Cendrawasih', lokasi: 'Jayapura, Papua', tipe: 'Nasional', mahasiswa: 245, sinkronisasi: 'Terbaru', gambar: './img/uncen.jpeg' },
+      { nama: 'Universitas Papua', lokasi: 'Manokwari, Papua Barat', tipe: 'Nasional', mahasiswa: 189, sinkronisasi: 'Terbaru', gambar: './img/unipa.jpeg' },
+      { nama: 'Politeknik Jayapura', lokasi: 'Jayapura, Papua', tipe: 'Nasional', mahasiswa: 134, sinkronisasi: 'Menunggu', gambar: './img/politeknik.jpeg' },
+      { nama: 'University of Melbourne', lokasi: 'Melbourne, Australia', tipe: 'Internasional', mahasiswa: 27, sinkronisasi: 'Terbaru', gambar: './img/university-of-melbourne.jpeg' },
+      { nama: 'Monash University', lokasi: 'Melbourne, Australia', tipe: 'Internasional', mahasiswa: 18, sinkronisasi: 'Terbaru', gambar: './img/monash-university.jpeg' },
+      { nama: 'University of Auckland', lokasi: 'Auckland, New Zealand', tipe: 'Internasional', mahasiswa: 12, sinkronisasi: 'Menunggu', gambar: './img/university-of-auckland.jpeg' }
+    ];
+    
+    const dashboardMenuConfig = {
+      dashboard: {
+        title: 'Dashboard Dinas Pendidikan',
+        subtitle: 'Ringkasan layanan e-Beasiswa OAP hari ini',
+        action: 'Export Laporan'
+      },
+      mahasiswa: {
+        title: 'Data Mahasiswa',
+        subtitle: 'Monitoring status mahasiswa penerima beasiswa',
+        action: 'Tambah Mahasiswa'
+      },
+      kampus: {
+        title: 'Data Kampus',
+        subtitle: 'Daftar kampus mitra dan status sinkronisasi data',
+        action: 'Tambah Kampus'
+      },
+      pembayaran: {
+        title: 'Riwayat Pembayaran',
+        subtitle: 'Riwayat penyaluran dan jadwal pencairan beasiswa',
+        action: 'Unduh Rekap'
+      },
+      laporan: {
+        title: 'Laporan Aktif Kuliah',
+        subtitle: 'Kelengkapan laporan studi mahasiswa setiap semester',
+        action: 'Validasi Laporan'
+      },
+      pengaduan: {
+        title: 'Pesan & Pengaduan',
+        subtitle: 'Daftar tiket pengaduan dari portal mahasiswa',
+        action: 'Tanggapi Tiket'
+      },
+      profil: {
+        title: 'Profil & Dokumen',
+        subtitle: 'Informasi profil instansi dan dokumen pendukung sistem',
+        action: 'Edit Profil'
+      }
+    };
+    
+    function updateDashboardHeader() {
+      const config = dashboardMenuConfig[activeDashboardMenu];
+      const roleLabel = currentDashboardTab === 0 ? 'Dinas' : 'Mahasiswa';
+      
+      document.getElementById('dashboard-title').textContent = `${config.title} • Mode ${roleLabel}`;
+      document.getElementById('dashboard-subtitle').textContent = config.subtitle;
+      document.getElementById('dashboard-action-label').textContent = config.action;
+    }
+    
+    function setDashboardMenu(menuKey) {
+      activeDashboardMenu = menuKey;
+      
+      document.querySelectorAll('.dashboard-menu-btn').forEach((btn) => {
+        const isActive = btn.dataset.menu === menuKey;
+        btn.classList.toggle('bg-blue-50', isActive);
+        btn.classList.toggle('text-blue-700', isActive);
+        btn.classList.toggle('font-medium', isActive);
+        btn.classList.toggle('text-gray-700', !isActive);
+      });
+      
+      document.querySelectorAll('.dashboard-panel').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.dataset.panel !== menuKey);
+      });
+      
+      if (menuKey === 'mahasiswa') {
+        renderMahasiswaTable();
+      }
+      if (menuKey === 'kampus') {
+        renderKampusCards();
+      }
+      
+      updateDashboardHeader();
+    }
+    
+    function handleDashboardAction() {
+      if (activeDashboardMenu === 'mahasiswa') {
+        openMahasiswaModal('create');
+        return;
+      }
+      if (activeDashboardMenu === 'profil') {
+        openProfileModal();
+        return;
+      }
+      
+      const actionText = dashboardMenuConfig[activeDashboardMenu]?.action || 'Aksi';
+      alert(`Demo tombol ${actionText} untuk menu ini belum diaktifkan.`);
+    }
+    
+    function setMahasiswaSearch(value) {
+      mahasiswaSearchQuery = value.trim().toLowerCase();
+      mahasiswaCurrentPage = 1;
+      renderMahasiswaTable();
+    }
+    
+    function setMahasiswaStatusFilter(value) {
+      mahasiswaStatusFilter = value;
+      mahasiswaCurrentPage = 1;
+      renderMahasiswaTable();
+    }
+    
+    function changeMahasiswaPage(step) {
+      mahasiswaCurrentPage += step;
+      renderMahasiswaTable();
+    }
+    
+    function goToMahasiswaPage(page) {
+      mahasiswaCurrentPage = page;
+      renderMahasiswaTable();
+    }
+    
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    
+    function escapeJsString(value) {
+      return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+    
+    function getMahasiswaStatusClass(status) {
+      if (status === 'Aktif') return 'text-green-600';
+      if (status === 'Verifikasi Berkas') return 'text-amber-600';
+      return 'text-gray-500';
+    }
+    
+    function setKampusSearch(value) {
+      kampusSearchQuery = value.trim().toLowerCase();
+      kampusCurrentPage = 1;
+      renderKampusCards();
+    }
+    
+    function setKampusTypeFilter(value) {
+      kampusTypeFilter = value;
+      kampusCurrentPage = 1;
+      renderKampusCards();
+    }
+    
+    function changeKampusPage(step) {
+      kampusCurrentPage += step;
+      renderKampusCards();
+    }
+    
+    function goToKampusPage(page) {
+      kampusCurrentPage = page;
+      renderKampusCards();
+    }
+    
+    function getKampusTipeClass(tipe) {
+      return tipe === 'Internasional'
+        ? 'bg-violet-100 text-violet-700'
+        : 'bg-blue-100 text-blue-700';
+    }
+    
+    function getKampusSinkronisasiClass(status) {
+      return status === 'Terbaru'
+        ? 'text-green-600'
+        : 'text-amber-600';
+    }
+    
+    function renderKampusCards() {
+      const filtered = kampusData.filter((item) => {
+        const matchesQuery = item.nama.toLowerCase().includes(kampusSearchQuery) || item.lokasi.toLowerCase().includes(kampusSearchQuery);
+        const matchesType = kampusTypeFilter === 'all' || item.tipe === kampusTypeFilter;
+        return matchesQuery && matchesType;
+      });
+      
+      const totalItems = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / kampusPerPage));
+      if (kampusCurrentPage > totalPages) kampusCurrentPage = totalPages;
+      if (kampusCurrentPage < 1) kampusCurrentPage = 1;
+      
+      const startIndex = (kampusCurrentPage - 1) * kampusPerPage;
+      const pagedItems = filtered.slice(startIndex, startIndex + kampusPerPage);
+      
+      const cardGrid = document.getElementById('kampus-card-grid');
+      const emptyState = document.getElementById('kampus-empty-state');
+      const paginationInfo = document.getElementById('kampus-pagination-info');
+      const prevBtn = document.getElementById('kampus-prev-btn');
+      const nextBtn = document.getElementById('kampus-next-btn');
+      const pagesContainer = document.getElementById('kampus-pagination-pages');
+      
+      cardGrid.innerHTML = pagedItems.map((item) => `
+        <div class="border rounded-3xl overflow-hidden bg-white">
+          <img src="${escapeHtml(item.gambar)}" alt="${escapeHtml(item.nama)}" class="w-full h-40 object-cover">
+          <div class="p-5">
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-semibold">${escapeHtml(item.nama)}</h4>
+              <span class="text-[11px] px-2.5 py-1 rounded-full ${getKampusTipeClass(item.tipe)}">${escapeHtml(item.tipe)}</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">${escapeHtml(item.lokasi)}</p>
+            <p class="text-sm text-gray-600 mt-3">${escapeHtml(item.mahasiswa)} mahasiswa OAP aktif</p>
+          </div>
+        </div>
+      `).join('');
+      
+      emptyState.classList.toggle('hidden', totalItems !== 0);
+      paginationInfo.textContent = totalItems === 0
+        ? 'Menampilkan 0-0 dari 0 data'
+        : `Menampilkan ${startIndex + 1}-${startIndex + pagedItems.length} dari ${totalItems} data`;
+      
+      prevBtn.disabled = kampusCurrentPage <= 1;
+      nextBtn.disabled = kampusCurrentPage >= totalPages || totalItems === 0;
+      
+      pagesContainer.innerHTML = Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        const isActive = page === kampusCurrentPage;
+        return `
+          <button type="button" onclick="goToKampusPage(${page})" class="w-8 h-8 rounded-lg text-xs ${isActive ? 'bg-blue-600 text-white' : 'border text-gray-600 hover:bg-white'}">
+            ${page}
+          </button>
+        `;
+      }).join('');
+    }
+    
+    function renderMahasiswaTable() {
+      const filtered = mahasiswaData.filter((item) => {
+        const matchesQuery = item.nama.toLowerCase().includes(mahasiswaSearchQuery) || item.kampus.toLowerCase().includes(mahasiswaSearchQuery);
+        const matchesStatus = mahasiswaStatusFilter === 'all' || item.status === mahasiswaStatusFilter;
+        return matchesQuery && matchesStatus;
+      });
+      
+      const totalItems = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / mahasiswaPerPage));
+      if (mahasiswaCurrentPage > totalPages) mahasiswaCurrentPage = totalPages;
+      if (mahasiswaCurrentPage < 1) mahasiswaCurrentPage = 1;
+      
+      const startIndex = (mahasiswaCurrentPage - 1) * mahasiswaPerPage;
+      const pagedItems = filtered.slice(startIndex, startIndex + mahasiswaPerPage);
+      
+      const tableBody = document.getElementById('mahasiswa-table-body');
+      const emptyState = document.getElementById('mahasiswa-empty-state');
+      const paginationInfo = document.getElementById('mahasiswa-pagination-info');
+      const prevBtn = document.getElementById('mahasiswa-prev-btn');
+      const nextBtn = document.getElementById('mahasiswa-next-btn');
+      const pagesContainer = document.getElementById('mahasiswa-pagination-pages');
+      
+      tableBody.innerHTML = pagedItems.map((item) => `
+        <div class="grid grid-cols-5 px-6 py-4 text-sm border-t items-center">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${escapeHtml(item.foto || 'https://randomuser.me/api/portraits/lego/1.jpg')}" alt="${escapeHtml(item.nama)}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+            <span class="font-medium text-gray-700 truncate">${escapeHtml(item.nama)}</span>
+          </div>
+          <div>${escapeHtml(item.kampus)}</div>
+          <div>${escapeHtml(item.semester)}</div>
+          <div class="${getMahasiswaStatusClass(item.status)} font-medium">${escapeHtml(item.status)}</div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="openMahasiswaModal('read', '${escapeJsString(item.nama)}', '${escapeJsString(item.kampus)}', '${escapeJsString(item.semester)}', '${escapeJsString(item.status)}', '${escapeJsString(item.foto || '')}')" class="px-3 py-1 rounded-xl bg-gray-100 text-gray-700 text-xs">Detail</button>
+            <button type="button" onclick="openMahasiswaModal('update', '${escapeJsString(item.nama)}', '${escapeJsString(item.kampus)}', '${escapeJsString(item.semester)}', '${escapeJsString(item.status)}', '${escapeJsString(item.foto || '')}')" class="px-3 py-1 rounded-xl bg-blue-100 text-blue-700 text-xs">Edit</button>
+            <button type="button" onclick="openMahasiswaModal('delete', '${escapeJsString(item.nama)}', '${escapeJsString(item.kampus)}', '${escapeJsString(item.semester)}', '${escapeJsString(item.status)}', '${escapeJsString(item.foto || '')}')" class="px-3 py-1 rounded-xl bg-red-100 text-red-700 text-xs">Hapus</button>
+          </div>
+        </div>
+      `).join('');
+      
+      emptyState.classList.toggle('hidden', totalItems !== 0);
+      paginationInfo.textContent = totalItems === 0
+        ? 'Menampilkan 0-0 dari 0 data'
+        : `Menampilkan ${startIndex + 1}-${startIndex + pagedItems.length} dari ${totalItems} data`;
+      
+      prevBtn.disabled = mahasiswaCurrentPage <= 1;
+      nextBtn.disabled = mahasiswaCurrentPage >= totalPages || totalItems === 0;
+      
+      pagesContainer.innerHTML = Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        const isActive = page === mahasiswaCurrentPage;
+        return `
+          <button type="button" onclick="goToMahasiswaPage(${page})" class="w-8 h-8 rounded-lg text-xs ${isActive ? 'bg-blue-600 text-white' : 'border text-gray-600 hover:bg-white'}">
+            ${page}
+          </button>
+        `;
+      }).join('');
+    }
+    
+    function setMahasiswaFieldState(isEditable) {
+      document.getElementById('mahasiswa-form-nama').readOnly = !isEditable;
+      document.getElementById('mahasiswa-form-foto').readOnly = !isEditable;
+      document.getElementById('mahasiswa-form-kampus').readOnly = !isEditable;
+      document.getElementById('mahasiswa-form-semester').readOnly = !isEditable;
+      document.getElementById('mahasiswa-form-status').disabled = !isEditable;
+    }
+    
+    function updateMahasiswaPhotoPreview(photoUrl) {
+      const preview = document.getElementById('mahasiswa-form-photo-preview');
+      preview.src = photoUrl && photoUrl.trim() ? photoUrl.trim() : './img/mahasiswa-pria.jpeg';
+    }
+    
+    function openMahasiswaModal(mode, nama = '', kampus = '', semester = '', status = 'Aktif', foto = '') {
+      mahasiswaModalMode = mode;
+      
+      const modal = document.getElementById('mahasiswa-modal');
+      const title = document.getElementById('mahasiswa-modal-title');
+      const subtitle = document.getElementById('mahasiswa-modal-subtitle');
+      const submitBtn = document.getElementById('mahasiswa-modal-submit');
+      const namaInput = document.getElementById('mahasiswa-form-nama');
+      const fotoInput = document.getElementById('mahasiswa-form-foto');
+      const kampusInput = document.getElementById('mahasiswa-form-kampus');
+      const semesterInput = document.getElementById('mahasiswa-form-semester');
+      const statusInput = document.getElementById('mahasiswa-form-status');
+      
+      namaInput.value = nama;
+      fotoInput.value = foto || './img/mahasiswa-pria.jpeg';
+      kampusInput.value = kampus;
+      semesterInput.value = semester;
+      statusInput.value = status || 'Aktif';
+      updateMahasiswaPhotoPreview(fotoInput.value);
+      
+      if (mode === 'create') {
+        title.textContent = 'Tambah Mahasiswa';
+        subtitle.textContent = 'Isi data mahasiswa untuk simulasi CRUD.';
+        submitBtn.textContent = 'Simpan';
+        submitBtn.className = 'px-5 py-2.5 rounded-2xl bg-blue-600 text-white hover:bg-blue-700';
+        setMahasiswaFieldState(true);
+      } else if (mode === 'read') {
+        title.textContent = 'Detail Mahasiswa';
+        subtitle.textContent = 'Mode baca detail data mahasiswa.';
+        submitBtn.classList.add('hidden');
+        setMahasiswaFieldState(false);
+      } else if (mode === 'update') {
+        title.textContent = 'Edit Data Mahasiswa';
+        subtitle.textContent = 'Perbarui data mahasiswa yang dipilih.';
+        submitBtn.textContent = 'Simpan Perubahan';
+        submitBtn.className = 'px-5 py-2.5 rounded-2xl bg-blue-600 text-white hover:bg-blue-700';
+        setMahasiswaFieldState(true);
+      } else if (mode === 'delete') {
+        title.textContent = 'Hapus Mahasiswa';
+        subtitle.textContent = 'Pastikan data yang akan dihapus sudah benar.';
+        submitBtn.textContent = 'Hapus Data';
+        submitBtn.className = 'px-5 py-2.5 rounded-2xl bg-red-600 text-white hover:bg-red-700';
+        setMahasiswaFieldState(false);
+      }
+      
+      if (mode !== 'read') {
+        submitBtn.classList.remove('hidden');
+      }
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    
+    function closeMahasiswaModal() {
+      const modal = document.getElementById('mahasiswa-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+    
+    function submitMahasiswaModal(event) {
+      event.preventDefault();
+      
+      const nama = document.getElementById('mahasiswa-form-nama').value;
+      const foto = document.getElementById('mahasiswa-form-foto').value;
+      const actionText = {
+        create: 'ditambahkan',
+        update: 'diperbarui',
+        delete: 'dihapus'
+      }[mahasiswaModalMode];
+      
+      alert(`Demo CRUD berhasil: data ${nama} ${actionText}.\nFoto profil: ${foto}`);
+      closeMahasiswaModal();
+    }
+    
+    function getProfileStatusClass(status) {
+      if (status === 'Lengkap') return 'text-green-600 font-medium';
+      if (status === 'Perlu Update') return 'text-amber-600 font-medium';
+      return 'text-blue-600 font-medium';
+    }
+    
+    function openProfileModal() {
+      document.getElementById('profile-form-name').value = document.getElementById('profile-display-name').textContent.trim();
+      document.getElementById('profile-form-nim').value = document.getElementById('profile-display-nim').textContent.trim();
+      document.getElementById('profile-form-prodi').value = document.getElementById('profile-display-prodi').textContent.trim();
+      document.getElementById('profile-form-kampus').value = document.getElementById('profile-display-kampus').textContent.trim();
+      document.getElementById('profile-form-semester').value = document.getElementById('profile-display-semester').textContent.trim();
+      document.getElementById('profile-form-email').value = document.getElementById('profile-display-email').textContent.trim();
+      document.getElementById('profile-form-phone').value = document.getElementById('profile-display-phone').textContent.trim();
+      document.getElementById('profile-form-khs-status').value = document.getElementById('profile-doc-khs').textContent.trim();
+      document.getElementById('profile-form-surat-status').value = document.getElementById('profile-doc-surat').textContent.trim();
+      
+      const modal = document.getElementById('profile-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+    
+    function submitProfileModal(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('profile-form-name').value;
+      const nim = document.getElementById('profile-form-nim').value;
+      const prodi = document.getElementById('profile-form-prodi').value;
+      const kampus = document.getElementById('profile-form-kampus').value;
+      const semester = document.getElementById('profile-form-semester').value;
+      const email = document.getElementById('profile-form-email').value;
+      const phone = document.getElementById('profile-form-phone').value;
+      const khsStatus = document.getElementById('profile-form-khs-status').value;
+      const suratStatus = document.getElementById('profile-form-surat-status').value;
+      
+      document.getElementById('profile-display-name').textContent = name;
+      document.getElementById('profile-display-nim').textContent = nim;
+      document.getElementById('profile-display-prodi').textContent = prodi;
+      document.getElementById('profile-display-kampus').textContent = kampus;
+      document.getElementById('profile-display-semester').textContent = semester;
+      document.getElementById('profile-display-email').textContent = email;
+      document.getElementById('profile-display-phone').textContent = phone;
+      
+      const khsEl = document.getElementById('profile-doc-khs');
+      khsEl.textContent = khsStatus;
+      khsEl.className = getProfileStatusClass(khsStatus);
+      
+      const suratEl = document.getElementById('profile-doc-surat');
+      suratEl.textContent = suratStatus;
+      suratEl.className = getProfileStatusClass(suratStatus);
+      
+      alert('Profil mahasiswa berhasil diperbarui (simulasi).');
+      closeProfileModal();
+    }
+    
+    function switchTab(n) {
+      currentDashboardTab = n;
+      
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        if (i === n) {
+          btn.classList.add('active', 'bg-blue-600', 'text-white');
+          btn.classList.remove('bg-white', 'shadow');
+        } else {
+          btn.classList.remove('active', 'bg-blue-600', 'text-white');
+          btn.classList.add('bg-white', 'shadow');
+        }
+      });
+      
+      updateDashboardHeader();
+    }
+    
+    // Initialize Leaflet Map
+    function initMap() {
+      const map = L.map('map').setView([0, 125], 2);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Sample data points
+      const locations = [
+        // Papua (3 marker)
+        {name: "Universitas Cendrawasih", region: "Papua", lat: -2.58, lng: 140.67, count: 245, color: "#3b82f6"},
+        {name: "Universitas Papua", region: "Papua", lat: -0.85, lng: 134.08, count: 189, color: "#3b82f6"},
+        {name: "Politeknik Biak", region: "Papua", lat: -1.19, lng: 136.10, count: 74, color: "#3b82f6"},
+        // Nasional Indonesia (3 marker)
+        {name: "Universitas Indonesia", region: "Indonesia", lat: -6.36, lng: 106.82, count: 38, color: "#10b981"},
+        {name: "Institut Teknologi Bandung", region: "Indonesia", lat: -6.89, lng: 107.61, count: 33, color: "#10b981"},
+        {name: "Universitas Airlangga", region: "Indonesia", lat: -7.27, lng: 112.75, count: 29, color: "#10b981"},
+        // Australia (3 marker)
+        {name: "University of Melbourne", region: "Australia", lat: -37.80, lng: 144.96, count: 21, color: "#f59e0b"},
+        {name: "University of Sydney", region: "Australia", lat: -33.89, lng: 151.19, count: 18, color: "#f59e0b"},
+        {name: "University of Queensland", region: "Australia", lat: -27.50, lng: 153.01, count: 15, color: "#f59e0b"}
+      ];
+      
+      locations.forEach(loc => {
+        const marker = L.circleMarker([loc.lat, loc.lng], {
+          radius: 12,
+          fillColor: loc.color,
+          color: "#fff",
+          weight: 3,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(map);
+        
+        marker.bindPopup(`
+          <div class="text-center">
+            <strong>${loc.name}</strong><br>
+            <span class="text-xs text-gray-500">${loc.region}</span><br>
+            <span class="text-green-600 font-medium">${loc.count} Mahasiswa OAP</span>
+          </div>
+        `);
+      });
+    }
+    
+    // Initialize everything
+    window.onload = function() {
+      initMap();
+      renderMahasiswaTable();
+      renderKampusCards();
+      switchTab(0);
+      setDashboardMenu('dashboard');
+      
+      // Keyboard support for demo
+      document.addEventListener('keydown', (e) => {
+        if (e.key === "/" && document.getElementById('email')) {
+          document.getElementById('email').focus();
+        }
+      });
+    };
+  </script>
+</body>
+</html>
